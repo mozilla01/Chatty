@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<head>
+    <title>Sign Up</title>
+</head>
+<body>
+    <h1>Sign up to chat</h1>
+    <form action="" method="POST">
+        {% csrf_token %}
+        <input placeholder="Username" name="username" />
+        <input placeholder="Password" name="password" />
+        <input type="submit" value="Register"/>
+    </form>
+</body>
+</html>
