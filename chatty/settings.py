@@ -84,17 +84,14 @@ CHANNEL_LAYERS = {
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-with open("postgres.txt") as f:
-    lines = f.readlines()
-    pwd = [line.strip() for line in lines]
+#with open("postgres.txt") as f:
+#    lines = f.readlines()
+#    pwd = [line.strip() for line in lines]
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
+        "ENGINE": "django.db.backends.sqlite3",
         "NAME": "Chatty",
-        "USER": "postgres",
-        "PASSWORD": pwd[0],
-        "HOST": "localhost",
     }
 }
 

@@ -1,57 +1,221 @@
-<!doctype html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Chat Room</title>
-    <style>
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat UI</title>
+  <style>
+    /* Basic Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
 
-        html {
-            background-color: beige;
-        }
-        .input-form {
-            display: flex;
-            flex-direction: column;
-            max-width: 25rem;
-            margin: 10em auto;
-            padding: 1em 1em;
-        }
-        input {
-            margin: 0.5em 0;
-            height: 2rem;
-        }
-        #chat-log {
-            min-height: 8rem;
-            max-height: 14rem;
-            border: 1px solid black;
-            overflow: scroll;
-            background-color: white;
-        }
-    </style>
+    /* Main Container */
+    .container {
+      display: flex;
+      height: 100vh;
+      background-color: #f0f2f5;
+    }
+
+    /* Sidebar styling */
+    .sidebar {
+      width: 30%;
+      max-width: 300px;
+      padding: 20px;
+      background-color: #ffffff;
+      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+    }
+
+    .sidebar h2 {
+      font-size: 20px;
+      margin-bottom: 15px;
+    }
+
+    /* Question List */
+    .questions {
+      margin-bottom: 20px;
+    }
+
+    .questions ul {
+      list-style-type: none;
+    }
+
+    .questions ul li {
+      padding: 8px;
+      cursor: pointer;
+      color: #333;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin-bottom: 8px;
+      transition: background-color 0.3s ease;
+    }
+
+    .questions ul li:hover {
+      background-color: #f0f2f5;
+    }
+
+    /* Tags Section */
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .tags .tag {
+      padding: 5px 10px;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      font-size: 14px;
+      background-color: #e3e3e3;
+      color: #333;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .tags .tag:hover {
+      background-color: #ccc;
+    }
+
+    /* Chat Section */
+    .chat-box {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .chat-window {
+      width: 100%;
+      max-width: 500px;
+      height: 70vh;
+      background-color: #ffffff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .chat-content {
+      flex-grow: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .chat-content .message {
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      max-width: 80%;
+    }
+
+    .chat-content .user {
+      background-color: #dcf8c6;
+      align-self: flex-end;
+    }
+
+    .chat-content .bot {
+      background-color: #f0f2f5;
+      align-self: flex-start;
+    }
+
+    /* Chat input styling */
+    .chat-input {
+      display: flex;
+      border-top: 1px solid #ddd;
+    }
+
+    .chat-input input {
+      flex-grow: 1;
+      padding: 15px;
+      border: none;
+      outline: none;
+    }
+
+    .chat-input button {
+      padding: 15px;
+      background-color: #4a90e2;
+      color: #ffffff;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .chat-input button:hover {
+      background-color: #357ABD;
+    }
+
+    #room_name {
+      padding-bottom: 1rem;
+    }
+
+    .chat-message {
+      padding: 0.5em 0.5em;
+      background-color: #ccc;
+      margin: 0.5em 0;
+      border-radius: 0.5em;
+    }
+  </style>
 </head>
 <body>
-    <div class="input-form">
-        <h2>{{ room_name }}</h2>
-        <div id="chat-log">
-            {% for message in messages %}
-            <p>{{message.author.username}}: {{ message.content }}</p>
-            {% endfor %}
-        </div>
-        <input
-            id="chat-message-input"
-            placeholder="Type a message..."
-            type="text"
-            size="100"
-        />
-        <input id="chat-message-submit" type="button" value="Send" />
+
+  <!-- Main Container -->
+  <div class="container">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h2>Questions</h2>
+      <div class="questions">
+        <ul>
+          {% for query in queries %}
+            <li>{{ query.content }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <hr style="margin-bottom: 1em;"/>
+      <h2>Tags</h2>
+      <div class="tags">
+        {% for tag in tags %}
+          <span class="tag">{{ tag.name }}</span>
+        {% endfor %}
+      </div>
     </div>
-    {{ room_name|json_script:"room-name" }}
-    <script>
-        const roomName = JSON.parse(
+
+    <!-- Chat Box -->
+    <div class="chat-box" id="input-form">
+      <h2 id="room_name">{{ room_name }}</h2>
+      <div class="chat-window">
+        <div class="chat-content" id="chat-log">
+          <!-- Messages will be dynamically added here -->
+           {% for message in messages %}
+              <p class="chat-message"><b>{{ message.author }}</b>: {{ message.content }}</p>
+          {% endfor %}
+        </div>
+        <div class="chat-input">
+          <input id="chat-message-input" type="text" placeholder="Type a message..." />
+          <button id="chat-message-submit">Send</button>
+        </div>
+      </div>
+    </div>
+<!-- Chat Box -->
+<div class="chat-box" id="input-form">
+  <h2 id="room_name">LLama AI response</h2>
+  <div class="chat-window">
+    <div class="chat-content" id="llm-log">
+      <!-- Messages will be dynamically added here -->
+    </div>
+  </div>
+</div>
+  </div>
+  {{ room_name|json_script:"room-name" }}
+  <script>
+    const roomName = JSON.parse(
             document.getElementById("room-name").textContent
         );
         const user = "{{ request.user.username }}";
@@ -63,7 +227,7 @@
         chatSocket.onmessage = function (e) {
             const data = JSON.parse(e.data);
             const chatlog = document.querySelector("#chat-log");
-            chatlog.innerHTML += `<p>${data.author}: ${data.message}</p>`;
+            chatlog.innerHTML += `<p class="chat-message"><b>${data.author}</b>: ${data.message}</p>`;
             const height = chatlog.scrollHeight;
             chatlog.scroll(0, height);
         };
@@ -93,5 +257,38 @@
             );
             messageInputDom.value = "";
         };
-    </script>
+
+        const convoString = `{{convo_string}}`;
+        console.log(convoString);
+
+        async function getResponse() {
+          const response = await fetch("https://api.together.xyz/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer 19055b33c64d59cc703a1ac5f97c6ec1b8b46711ad7ddb54cb80d1c92f9aa391"
+            },
+            body: JSON.stringify({
+                "model": "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "The following is a conversation in a chat room. Summarize the conversation if it is helpful. Provide an answer to the user's queries."
+                    },
+                    {
+                        "role": "user",
+                        "content": convoString
+                    }
+                ],
+                "max_tokens": 2048,
+                "stream": false
+            })  
+        })
+        const llm_log = document.querySelector("#llm-log");
+        const data = await response.json();
+        llm_log.innerHTML += `<p class="chat-message"><b>LLama AI</b>: ${data.choices[0].message.content}</p>`;
+      }
+      getResponse();
+  </script>
 </body>
+</html>
