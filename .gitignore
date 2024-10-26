@@ -4,3 +4,5 @@ __pycache__
 .idea
 postgres.txt
 migrations/
+db.sqlite3
+venv
